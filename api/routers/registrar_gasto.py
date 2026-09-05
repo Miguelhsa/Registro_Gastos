@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends
 from pydantic import BaseModel
 from dominio.modelos import Gasto
 from datetime import date
 from persistencia.repositorio import guardar
 from comunicador.notificador import enviar
+from api.seguridad import verificar_clave
 
 class GastoIn(BaseModel):
     categoria: str
@@ -12,7 +13,7 @@ class GastoIn(BaseModel):
 
 router = APIRouter(prefix="/registrar", tags=["registro_gasto"])
 
-@router.post("")
+@router.post("",dependencies=[Depends(verificar_clave)])
 def registrar(entrada:GastoIn):
     #recibo un str y un float y tengo que reconstruir un Gasto
     gasto_entrada = Gasto(date.today(),entrada.categoria,entrada.importe)

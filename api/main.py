@@ -1,7 +1,7 @@
-
 from fastapi import FastAPI
 from api.routers.salud import router as router_salud
 from api.routers.registrar_gasto import router as registro_gasto
+from api.seguridad import verificar_clave
 
 
 app = FastAPI()

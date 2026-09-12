@@ -5,3 +5,7 @@ __pycache__/
 Notas.md
 prueba.py
 gastos.json
+#Imagenes y capturas personales (repo publico)
+*.png
+*.jpg
+*.jpeg

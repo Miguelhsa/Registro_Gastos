@@ -1,0 +1,32 @@
+# === RECETA DEL FRONT (Streamlit) ===
+# Casi idéntica a la de la API (Dockerfile.api). Solo cambian 3 cosas: marcadas con [DISTINTO].
+
+# Misma base: una imagen que ya trae Python 3.14. slim = ligera.
+FROM python:3.14-slim
+
+# Misma carpeta de trabajo dentro de la caja.
+WORKDIR /app
+
+# Copio mi proyecto dentro de /app (el .dockerignore sigue dejando fuera .env, .venv, .git...).
+COPY . .
+
+# Meto la herramienta uv en la caja (igual que en la API: pip solo para traer uv).
+RUN pip install uv
+
+# [DISTINTO 1] Instalo dependencias CON el grupo frontend.
+# uv sync a secas instalaria solo el saco comun (fastapi, httpx, dotenv) -> SIN Streamlit.
+# --group frontend le anade el grupo que separamos ayer -> asi SI entra Streamlit.
+# httpx viene solo, porque esta en el saco comun y uv sync siempre lo instala.
+# --no-dev deja fuera dependencias de desarrollo (como en la API).
+RUN uv sync --no-dev --group frontend
+
+# [DISTINTO 2] La puerta. Streamlit NO usa el 8000 (ese es FastAPI): usa el 8501 por defecto.
+EXPOSE 8501
+
+# [DISTINTO 3] El arranque. No es 'fastapi run', es 'streamlit run' apuntando a mi app.
+#   --server.port=8501     -> la puerta por la que sirve (coincide con el EXPOSE de arriba).
+#   --server.address=0.0.0.0 -> MISMA leccion que en la API: dentro de la caja hay que escuchar
+#                               en 0.0.0.0 (a todos), no en 127.0.0.1, o la caja queda sorda desde fuera.
+#   --server.headless=true -> que NO intente abrir un navegador ni pedir email al arrancar
+#                             (en una caja no hay navegador ni nadie escribiendo; si no, se queda colgado).
+CMD ["uv", "run", "streamlit", "run", "frontend/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]

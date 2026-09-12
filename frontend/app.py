@@ -17,7 +17,7 @@ boton = st.button("mandar gasto", type="primary")
 
 if boton:
     
-    respuesta = httpx.post("http://127.0.0.1:8000/registrar", json={"categoria": categoria,"importe":importe},headers={"X-API-Key": password})
+    respuesta = httpx.post("http://api:8000/registrar", json={"categoria": categoria,"importe":importe},headers={"X-API-Key": password})
     if respuesta.status_code == 200:
         st.write("Gasto enviado!")
     else: 

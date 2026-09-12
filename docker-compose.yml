@@ -1,0 +1,28 @@
+# docker-compose = el "director de orquesta".
+# Levanta las DOS cajas a la vez y les monta automaticamente una RED COMUN
+# donde cada caja es alcanzable por su NOMBRE de servicio.
+# Se arranca todo junto con un solo comando:  docker compose up --build
+
+services:
+
+  # ===== Caja 1: la API (FastAPI) =====
+  # OJO a este nombre "api": no es decorativo. En la red que monta compose,
+  # esta caja responde al hostname "api". Por eso el front la llamara como http://api:8000
+  api:
+    build:
+      context: .                  # desde donde construyo (la carpeta con los archivos)
+      dockerfile: Dockerfile.api  # que receta usar para esta caja
+    env_file:
+      - .env                      # inyecta los secretos al arrancar (igual que el --env-file de antes)
+    ports:
+      - "8000:8000"               # Mac:caja -> para poder abrir /docs desde el navegador
+
+  # ===== Caja 2: el front (Streamlit) =====
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8501:8501"               # Mac:caja -> para ver la pagina del front
+    depends_on:
+      - api                       # arranca primero la api y luego el front

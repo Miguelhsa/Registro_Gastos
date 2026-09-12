@@ -1,0 +1,31 @@
+# .dockerignore = la lista de "esto NO lo copies aunque el Dockerfile diga COPY . ."
+# Funciona igual que el .gitignore, pero para Docker.
+# Docker lo lee ANTES del COPY . . y va tachando de la copia todo lo que aparezca aqui.
+# Sirve para: (1) no meter SECRETOS en la imagen, (2) no meter basura, (3) imagen mas ligera.
+# OJO: aqui el # solo es comentario si va al PRINCIPIO de la linea.
+# Un # a mitad de linea NO es comentario: se pega al patron y lo estropea. Por eso cada
+# explicacion va en su propia linea, encima del patron.
+
+# el entorno virtual de mi Mac: no sirve dentro de la caja (ella crea el suyo con uv sync) y pesa mucho
+.venv
+
+# todo el historial del repo: no pinta nada dentro de la imagen
+.git
+
+# archivo de git, la caja no lo necesita
+.gitignore
+
+# MIS SECRETOS (token de Telegram, API_KEY). NUNCA dentro de la imagen: si comparto la imagen, irian dentro
+.env
+
+# caches de Python compilado: basura, se regenera sola
+__pycache__
+
+# ficheros .pyc compilados: misma basura que __pycache__
+*.pyc
+
+# mis datos locales de gastos: no son parte del programa
+gastos.json
+
+# config local del front: la API no la necesita
+.streamlit

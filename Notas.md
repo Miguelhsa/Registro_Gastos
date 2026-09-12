@@ -22,3 +22,15 @@ git commit -m "Estructura inicial de control-gastos (capas + pyproject)"
 
 # 4. Rama para el trabajo del dominio (flujo rama→PR desde el minuto uno)
 git switch -c dominio
+
+#=======
+Trabajo con Github
+#=======
+# 1. Conecta tu repo local con el de GitHub (le llamas "origin")
+git remote add origin https://github.com/Miguelhsa/Registro_Gastos.git
+
+# 2. Sube primero master (la rama base, la tronco)
+git push -u origin master
+
+# 3. Sube tu rama de trabajo
+git push -u origin dominio

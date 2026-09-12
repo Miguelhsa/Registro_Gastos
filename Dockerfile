@@ -1,0 +1,50 @@
+# Empieza mi caja a partir de una imagen que YA trae Python 3.14 instalado.
+# slim = versión ligera (lo justo, sin extras) -> imagen más pequeña.
+FROM python:3.14-slim
+
+# Dentro del contenedor necesito una carpeta donde poner el proyecto
+# (si no, todo caería suelto en la raíz del sistema, un lío).
+# WORKDIR crea esa carpeta y se mete dentro (como un cd, pero además la crea si no existe).
+WORKDIR /app
+
+# La caja tiene Python y una carpeta /app vacía, pero mi código no está dentro: hay que copiarlo.
+# Los dos puntos son "de dónde" y "a dónde":
+#   - primer  . = mi proyecto en el Mac (la carpeta desde la que construyo).
+#   - segundo . = el sitio dentro de la caja = el WORKDIR, o sea /app.
+# O sea: "copia todo lo de mi proyecto dentro de /app de la caja".
+#
+# IMPORTANTE -> este COPY depende de un archivo aparte: el .dockerignore.
+# Es OTRO fichero (se llama exactamente .dockerignore) que va en la RAIZ del proyecto,
+# al lado de este Dockerfile, y HAY QUE CREARLO a mano (no se genera solo).
+# En el .dockerignore listo lo que NO quiero copiar: .env (secretos), .venv, .git, etc.
+# Docker lo lee ANTES de este COPY y va tachando de la copia todo lo que aparezca ahi.
+# Si ese archivo no existe, COPY . . se lleva TODO, incluidos los secretos. Ver .dockerignore.
+COPY . .
+
+# La caja ya tiene el código, pero NO tiene las librerías.
+# python:3.14-slim trae Python pelado: no sabe qué es FastAPI, ni httpx, ni uvicorn.
+# Es como copiar mis recetas a una cocina nueva: están los papeles, pero la despensa está vacía.
+#
+# RUN = "ejecuta este comando MIENTRAS construyo la imagen" (al hornear la caja, no al arrancar).
+#       Cada RUN deja su resultado guardado dentro de la imagen.
+# pip install uv -> mete la herramienta uv en la caja
+#                   (el único momento en que uso pip: solo para traer uv).
+RUN pip install uv
+# uv sync --no-dev -> uv lee mi pyproject.toml + uv.lock e instala EXACTAMENTE
+#                     las dependencias del proyecto dentro de la caja.
+#                     --no-dev deja fuera las de desarrollo (el servidor de producción no las necesita).
+RUN uv sync --no-dev
+
+# EXPOSE = el cartel de la puerta: "por aquí se entra, puerto 8000".
+# Es sobre todo documentación (le dice a quien mire la imagen, y a docker-compose, qué puerta uso).
+# No abre nada por magia, pero es la convención y compose la aprovecha.
+EXPOSE 8000
+
+# CMD = lo que se ejecuta CUANDO la caja se ENCIENDE (el motor de arranque del contenedor).
+# Ojo, distinto de RUN: RUN corrió al construir; CMD corre al arrancar.
+# Es 'fastapi run' (no 'dev'): 'dev' es para el Mac mientras programo (recarga sola);
+# 'run' es el modo de producción, sin recarga, más rápido. Dentro de la caja sirvo, no edito.
+# 'fastapi run' escucha por defecto en 0.0.0.0 (no en 127.0.0.1): dentro de un contenedor
+# 127.0.0.1 sería "solo yo, nadie de fuera me oye" y la caja quedaría sorda desde fuera;
+# 0.0.0.0 = "escucho a cualquiera que llame a mi puerta". En contenedor SIEMPRE 0.0.0.0.
+CMD ["uv", "run", "fastapi", "run", "api/main.py", "--port", "8000"]

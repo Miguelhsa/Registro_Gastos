@@ -51,7 +51,7 @@ Seis piezas + dos sistemas externos. Diseñada por Miguel (sesión 42).
 
 ## Carpetas
 
-<!-- PENDIENTE — lo razonas TÚ, después de las capas. -->
+- **dominio** 
 
 ## Qué entrega y quién lo consume
 
@@ -60,3 +60,4 @@ Seis piezas + dos sistemas externos. Diseñada por Miguel (sesión 42).
 ## Modelo de dominio (los objetos)
 
 <!-- LO MICRO: PENDIENTE, después de la macro. -->
+

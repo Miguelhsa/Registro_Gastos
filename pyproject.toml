@@ -6,5 +6,9 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.3",
+]
+
+[dependency-groups]
+frontend = [
     "streamlit>=1.63.0",
 ]

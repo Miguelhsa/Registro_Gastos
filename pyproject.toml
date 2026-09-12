@@ -9,6 +9,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+cron = [
+    "apscheduler>=3.11.3",
+]
 frontend = [
     "streamlit>=1.63.0",
 ]

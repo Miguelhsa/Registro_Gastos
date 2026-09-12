@@ -16,6 +16,8 @@ services:
       - .env                      # inyecta los secretos al arrancar (igual que el --env-file de antes)
     ports:
       - "8000:8000"               # Mac:caja -> para poder abrir /docs desde el navegador
+    volumes:
+      - ./gastos.json:/app/gastos.json   # PUENTE: gastos.json del Mac <-> /app/gastos.json de la caja
 
   # ===== Caja 2: el front (Streamlit) =====
   front:
@@ -26,3 +28,13 @@ services:
       - "8501:8501"               # Mac:caja -> para ver la pagina del front
     depends_on:
       - api                       # arranca primero la api y luego el front
+
+  # ===== Caja 3: el cron (disparador diario del resumen) =====
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    env_file:
+      - .env                      # necesita el token de Telegram para enviar
+    volumes:
+      - ./gastos.json:/app/gastos.json   # MISMO puente que la API: lee los gastos que la API escribió

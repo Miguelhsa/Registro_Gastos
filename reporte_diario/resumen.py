@@ -2,7 +2,6 @@ from persistencia.repositorio import guardar, cargar
 from dominio.modelos import gastos_hoy
 from comunicador.notificador import enviar
 
-
 #Pide a persistencia, dominio y comunicador su parte y las enlaza 
 
 #1 carga la lista de gastos

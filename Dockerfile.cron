@@ -1,0 +1,21 @@
+# === RECETA DEL CRON (el disparador diario) ===
+# Casi igual que Dockerfile.api. Solo cambian 3 cosas [DISTINTO].
+
+# Misma base, misma carpeta, copio el codigo, meto uv. Todo igual que la API.
+FROM python:3.14-slim
+WORKDIR /app
+COPY . .
+RUN pip install uv
+
+# [DISTINTO 1] Instala el grupo "cron" (trae apscheduler). La API y el front NO lo llevan.
+RUN uv sync --no-dev --group cron
+
+# [DISTINTO 2] NO hay EXPOSE. Esta caja no sirve ninguna puerta:
+# nadie se conecta A ella. Solo SALE ella hacia Telegram. Sin puerto que abrir.
+
+# [DISTINTO 3] El arranque no es un servidor web, es tu planificador.
+# Se usa 'python -m' (modo modulo) a proposito: asi /app queda en el path y tus
+# imports absolutos (reporte_diario.resumen, persistencia.repositorio, dominio.modelos)
+# se encuentran. Si lo lanzaras como 'python reporte_diario/planificador.py', esos
+# imports fallarian. El planificador arranca el BlockingScheduler y mantiene viva la caja.
+CMD ["uv", "run", "python", "-m", "reporte_diario.planificador"]

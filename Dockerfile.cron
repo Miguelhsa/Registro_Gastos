@@ -8,7 +8,7 @@ COPY . .
 RUN pip install uv
 
 # [DISTINTO 1] Instala el grupo "cron" (trae apscheduler). La API y el front NO lo llevan.
-RUN uv sync --no-dev --group cron
+RUN uv sync --no-dev --group cron --group sheets
 
 # [DISTINTO 2] NO hay EXPOSE. Esta caja no sirve ninguna puerta:
 # nadie se conecta A ella. Solo SALE ella hacia Telegram. Sin puerto que abrir.

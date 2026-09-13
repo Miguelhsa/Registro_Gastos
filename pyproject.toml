@@ -15,3 +15,6 @@ cron = [
 frontend = [
     "streamlit>=1.63.0",
 ]
+sheets = [
+    "gspread>=6.2.1",
+]

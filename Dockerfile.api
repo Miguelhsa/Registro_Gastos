@@ -33,7 +33,7 @@ RUN pip install uv
 # uv sync --no-dev -> uv lee mi pyproject.toml + uv.lock e instala EXACTAMENTE
 #                     las dependencias del proyecto dentro de la caja.
 #                     --no-dev deja fuera las de desarrollo (el servidor de producción no las necesita).
-RUN uv sync --no-dev
+RUN uv sync --no-dev --group sheets
 
 # EXPOSE = el cartel de la puerta: "por aquí se entra, puerto 8000".
 # Es sobre todo documentación (le dice a quien mire la imagen, y a docker-compose, qué puerta uso).

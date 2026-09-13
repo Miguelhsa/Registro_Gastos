@@ -11,3 +11,4 @@ scheduler.add_job(enviar_resumen, "cron", hour=22, minute=0)  # (4)
 
 # --- arráncalo (esto BLOQUEA -> mantiene la caja viva) ---
 scheduler.start()                                     # (5)
+

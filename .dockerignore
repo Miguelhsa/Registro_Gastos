@@ -29,3 +29,5 @@ gastos.json
 
 # config local del front: la API no la necesita
 .streamlit
+
+credenciales.json

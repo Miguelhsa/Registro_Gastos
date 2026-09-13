@@ -36,14 +36,50 @@ Conceptos aprendidos hoy:
 
 Arrancar todo:  docker compose up --build   (parar/limpiar: docker compose down)
 
-## Cabos sueltos / próximos pasos (Miguel elige orden; recomendado 1 primero)
-1. **Cerrar git**: TODO el trabajo de Docker sigue SIN commitear. Flujo rama->PR->merge.
-   (Recordar: `frontend/*.jpg` va en .gitignore; NO subir la foto personal. Repo público.)
-2. **Volúmenes**: los gastos se guardan DENTRO de la caja y se BORRAN al recrear. Falta un
-   volumen de Docker para que gastos.json sobreviva.
-3. **Resumen diario automático (CRON JOB)**: el código existe (reporte_diario/enviar_resumen)
-   pero nadie lo dispara cada día. Falta montar el mecanismo (2º orquestador).
-4. (Evolución) cambiar el almacén JSON por Google Sheets.
+## Sesion 2026-09-13 (tarde) - Volumen + Cron cerrados
+- **Volumen (cabo 2) HECHO**: en docker-compose, servicio api lleva
+  `volumes: - ./gastos.json:/app/gastos.json` (bind mount). Los gastos ya sobreviven a down/up.
+  Concepto: imagen/contenedor/volumen son 3 cosas independientes; borrar imagen NO borra datos.
+  Bind mount = un PUENTE a un archivo que ya existe en el Mac (sin almacen propio); named volume =
+  cajon gestionado por Docker. Publicar puertos es para que TU entres; datos y secretos NO viajan
+  con el compose (son de cada maquina), igual que el .env.
+- **Cron / resumen diario (cabo 3) HECHO**: tercer contenedor dedicado.
+  - `pyproject.toml`: nuevo grupo [dependency-groups] cron = apscheduler.
+  - `reporte_diario/planificador.py` (NUEVO): BlockingScheduler(timezone="Europe/Madrid"),
+    add_job(enviar_resumen, "cron", hour=22, minute=0), .start(). (linea interval, minutes=1 comentada para pruebas).
+  - `Dockerfile.cron` (NUEVO): como la API pero uv sync --group cron, SIN EXPOSE (nadie se conecta A el),
+    CMD uv run python -m reporte_diario.planificador (el -m es clave para que los imports absolutos funcionen).
+  - `docker-compose.yml`: servicio cron con env_file .env y el MISMO volumen de gastos.json
+    (la API escribe, el cron lee). Sin ports ni depends_on (el cron NO pasa por la API; usa las capas directamente).
+  - Probado con interval minutes=1 (Telegram cada minuto), luego cambiado a cron diario 22:00.
+- **Git HECHO**: PR #3 (docker) y PR #4 (cron-volumen) mergeados en master. Todo commiteado.
+- Conceptos: BlockingScheduler = llamada SINCRONA/bloqueante que no vuelve nunca -> mantiene vivo el
+  proceso -> mantiene viva la caja (pero un `docker compose down` la para igual: el control externo es tuyo).
+  interval (cada X tiempo) vs cron (momento del reloj). Pasar la funcion sin () a add_job.
+
+## Cabos sueltos
+1. Cerrar git — HECHO.
+2. Volumen — HECHO.
+3. Resumen diario / cron — HECHO.
+4. **Google Sheets — PENDIENTE (aqui seguimos manana).**
+
+### Plan de Google Sheets (cabo 4)
+LA RECOMPENSA de la arquitectura: para pasar de JSON a Sheets se cambia UN SOLO archivo,
+`persistencia/repositorio.py`. Dominio, API, Comunicador, cron y front NO se tocan (siguen llamando
+guardar()/cargar() igual). Es el pago del patron repositorio.
+
+Dos mitades:
+- **Mitad A (fontaneria)**: (1) libreria `gspread`, (2) credenciales = una CUENTA DE SERVICIO de
+  Google Cloud que da un JSON, (3) COMPARTIR la hoja de Sheets con el email de esa cuenta de servicio.
+  El JSON de credenciales es un SECRETO -> fuera de la imagen, fuera de git, inyectado como el .env.
+  (gspread ira en su propio grupo de dependencias, p. ej. group sheets.)
+- **Mitad B (codigo, lo escribe Miguel)**: reescribir guardar()/cargar() en repositorio.py para que
+  escriban una fila / lean las filas de la hoja, en vez del archivo json.
+
+Preguntas abiertas para arrancar manana:
+  1) Tiene ya una hoja de Google Sheets creada, o la creamos?
+  2) Ha tocado antes la consola de Google Cloud (proyecto, cuenta de servicio), o es terreno nuevo?
+
 
 ## Recordatorio de método
 Mentor: guío con preguntas/pistas; el código Python lo escribe Miguel. Dockerfile/config los puedo

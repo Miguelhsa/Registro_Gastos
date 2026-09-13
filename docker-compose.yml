@@ -17,7 +17,7 @@ services:
     ports:
       - "8000:8000"               # Mac:caja -> para poder abrir /docs desde el navegador
     volumes:
-      - ./gastos.json:/app/gastos.json   # PUENTE: gastos.json del Mac <-> /app/gastos.json de la caja
+      - ./credenciales.json:/app/credenciales.json:ro  # PUENTE: gastos.json del Mac <-> /app/gastos.json de la caja
 
   # ===== Caja 2: el front (Streamlit) =====
   front:
@@ -37,4 +37,4 @@ services:
     env_file:
       - .env                      # necesita el token de Telegram para enviar
     volumes:
-      - ./gastos.json:/app/gastos.json   # MISMO puente que la API: lee los gastos que la API escribió
+      - ./credenciales.json:/app/credenciales.json:ro   # MISMO puente que la API: lee los gastos que la API escribió
